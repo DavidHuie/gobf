@@ -7,21 +7,21 @@ import (
 )
 
 type Db interface {
+	GetBit(uint64) (bool, error)
 	Init(uint64) error
 	SetBit(uint64, bool) error
-	GetBit(uint64) (bool, error)
 }
 
 type BloomFilter struct {
-	hash     hash.Hash64
 	db       Db
-	size     uint64
+	hash     hash.Hash64
+	hashLock *sync.Mutex
 	hashes   uint32
 	seed     []byte
-	hashLock *sync.Mutex
+	size     uint64
 }
 
-func NewBloomFilter(hash hash.Hash64, db Db, size uint64, hashes uint32, seed uint64) (*BloomFilter, error) {
+func New(db Db, hash hash.Hash64, hashes uint32, seed uint64, size uint64) (*BloomFilter, error) {
 	if err := db.Init(size); err != nil {
 		return nil, err
 	}
@@ -30,12 +30,12 @@ func NewBloomFilter(hash hash.Hash64, db Db, size uint64, hashes uint32, seed ui
 	binary.LittleEndian.PutUint64(seedBytes, seed)
 
 	return &BloomFilter{
-		hash:     hash,
 		db:       db,
-		size:     size,
+		hash:     hash,
+		hashLock: &sync.Mutex{},
 		hashes:   hashes,
 		seed:     seedBytes,
-		hashLock: &sync.Mutex{},
+		size:     size,
 	}, nil
 }
 
