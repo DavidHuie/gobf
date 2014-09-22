@@ -57,9 +57,9 @@ func (bf *BloomFilter) hashPayload(p []byte, num uint32) uint64 {
 	return bf.hashBytes(fullPayload)
 }
 
-func (bf *BloomFilter) hashAndSetToBool(p []byte, b bool) error {
+func (bf *BloomFilter) setKeyToBool(key []byte, b bool) error {
 	for i := uint32(0); i < bf.hashes; i++ {
-		h := bf.hashPayload(p, i)
+		h := bf.hashPayload(key, i)
 		if err := bf.db.SetBit(h, b); err != nil {
 			return err
 		}
@@ -68,11 +68,11 @@ func (bf *BloomFilter) hashAndSetToBool(p []byte, b bool) error {
 }
 
 func (bf *BloomFilter) Insert(p []byte) error {
-	return bf.hashAndSetToBool(p, true)
+	return bf.setKeyToBool(p, true)
 }
 
 func (bf *BloomFilter) Delete(p []byte) error {
-	return bf.hashAndSetToBool(p, false)
+	return bf.setKeyToBool(p, false)
 }
 
 func (bf *BloomFilter) Present(p []byte) (bool, error) {
