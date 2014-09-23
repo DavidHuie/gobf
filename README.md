@@ -6,9 +6,10 @@ If you want to create an in-memory bloom filter with the standard
 FNV hash function, call the function `NewDefault`:
 
 ```go
-hashes := 5
-size := 1000
-b := gobf.NewDefault(hashes, size)
+hashes := uint32(5)
+size := uint64(1000)
+
+b, err := gobf.NewDefault(hashes, size)
 ```
 
 Here, `hashes` refers to the number of hash functions to use and `size` refers
@@ -39,7 +40,7 @@ Use the `Delete` method:
 err := b.Delete([]byte("my key"))
 ```
 
-Note that since this isn't a counting filter, a delete may affect other keys.
+Note: since this isn't a counting filter, a delete may affect other keys.
 
 ## Configurable bloom filters
 
@@ -65,5 +66,5 @@ type Db interface {
 
 ## Copyright
 
-Copyright (c) 2013 David Huie. See LICENSE.txt for
+Copyright (c) 2014 David Huie. See LICENSE.txt for
 further details.
