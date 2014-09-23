@@ -15,12 +15,21 @@ func New() *Mem {
 }
 
 func (m *Mem) Init(size uint64) error {
+	m.Lock()
+	defer m.Unlock()
+
+	if len(m.data) > 0 {
+		return nil
+	}
+
 	totalBytes := size / 8
 	if size%8 != 0 {
 		totalBytes += 1
 	}
+
 	m.size = size
 	m.data = make([]byte, totalBytes)
+
 	return nil
 }
 

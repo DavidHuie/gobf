@@ -3,7 +3,10 @@ package gobf
 import (
 	"encoding/binary"
 	"hash"
+	"hash/fnv"
 	"sync"
+
+	"github.com/DavidHuie/gobf/db/mem"
 )
 
 type Db interface {
@@ -39,11 +42,36 @@ func New(db Db, hash hash.Hash64, hashes uint32, seed uint64, size uint64) (*Blo
 	}, nil
 }
 
+const (
+	defaultSeed = 1337
+)
+
+func NewDefault(hashes uint32, size uint64) (*BloomFilter, error) {
+	seedBytes := make([]byte, 8)
+	binary.LittleEndian.PutUint64(seedBytes, defaultSeed)
+
+	db := mem.New()
+	if err := db.Init(size); err != nil {
+		return nil, err
+	}
+
+	return &BloomFilter{
+		db:       db,
+		hash:     fnv.New64(),
+		hashLock: &sync.Mutex{},
+		hashes:   hashes,
+		seed:     seedBytes,
+		size:     size,
+	}, nil
+}
+
 func (bf *BloomFilter) hashBytes(b []byte) uint64 {
 	bf.hashLock.Lock()
 	defer bf.hashLock.Unlock()
 
 	bf.hash.Write(b)
+	defer bf.hash.Reset()
+
 	return bf.hash.Sum64()
 }
 
@@ -54,7 +82,7 @@ func (bf *BloomFilter) hashPayload(p []byte, num uint32) uint64 {
 	fullPayload := append(p, bf.seed...)
 	fullPayload = append(fullPayload, numBytes...)
 
-	return bf.hashBytes(fullPayload)
+	return bf.hashBytes(fullPayload) % bf.size
 }
 
 func (bf *BloomFilter) setKeyToBool(key []byte, b bool) error {
