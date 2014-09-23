@@ -1,3 +1,5 @@
+// In in-memory binary data store
+
 package mem
 
 import (
@@ -14,6 +16,7 @@ func New() *Mem {
 	return &Mem{}
 }
 
+// Initializes the data store to the specified size
 func (m *Mem) Init(size uint64) error {
 	m.Lock()
 	defer m.Unlock()
@@ -33,6 +36,7 @@ func (m *Mem) Init(size uint64) error {
 	return nil
 }
 
+// Sets a bit to the specified bool
 func (m *Mem) SetBit(n uint64, value bool) error {
 	m.Lock()
 	defer m.Unlock()
@@ -50,6 +54,7 @@ func (m *Mem) SetBit(n uint64, value bool) error {
 	return nil
 }
 
+// Returns the bit at the specified location
 func (m *Mem) GetBit(n uint64) (bool, error) {
 	m.Lock()
 	defer m.Unlock()
