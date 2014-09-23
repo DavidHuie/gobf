@@ -1,5 +1,7 @@
 # gobf - bloom filters in golang
 
+[![GoDoc](https://godoc.org/github.com/DavidHuie/gobf?status.svg)](https://godoc.org/github.com/DavidHuie/gobf)
+
 ## Creating a basic bloom filter
 
 If you want to create an in-memory bloom filter with the standard
